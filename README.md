@@ -16,6 +16,11 @@ SomeContract = OBJECT({
 });
 ```
 
+## UPPERCASE 환경
+
+## 기타 환경
+Contract2Object는 [UPPERCASE-CORE-COMMON]()에 의존적입니다. 따라서 [UPPERCASE-CORE/COMMON.js 코드](https://github.com/Hanul/UPPERCASE/blob/master/UPPERCASE-CORE/COMMON.js)가 필요합니다.
+
 ## 사용 예시
 - [RankCoin](https://rankcoin.net/) - https://github.com/Hanul/RankCoin/blob/master/js/RankCoinContract.js
 
