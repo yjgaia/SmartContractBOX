@@ -32,7 +32,7 @@ SomeContract.balancOf(user, (balance) => {
 
 너무 큰 숫자의 경우 JavaScript의 숫자 타입으로는 범위가 벗어나는 경우가 있으므로, 이를 방지하고자 숫자의 경우 다음과 같이 문자열로도 반환합니다.
 ```javascript
-SomeContract.balancOf(user, (balance, balance) => {
+SomeContract.balancOf(user, (balance, balanceStr) => {
 	...
 });
 ```
