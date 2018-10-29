@@ -37,6 +37,41 @@ SomeContract.balancOf(user, (balance, balanceStr) => {
 });
 ```
 
+트랜잭션을 기다려야 하는 함수의 경우 트랜잭션이 끝나고 콜백이 실행됩니다.
+```javascript
+SomeContract.approve({
+	spender : spender,
+	amount : amount
+}, () => {
+	...
+});
+```
+
+만약 트랜잭션 주소를 가져와야 하는 경우에는 다음과 같이 콜백을 2개 지정합니다.
+```javascript
+SomeContract.approve({
+	spender : spender,
+	amount : amount
+}, {
+	transactionAddress : (address) => {
+		...
+	},
+	success : () => {
+		...
+	}
+});
+```
+
+`payable` 함수를 실행하는 경우에는 파라미터에 `ether`를 추가할 수 있습니다.
+```javascript
+SomeContract.buy({
+	ether : 12,
+	amount : amount
+}, () => {
+	...
+});
+```
+
 ## UPPERCASE 환경
 프로젝트의 `DEPENDENCY` 파일에 `Hanul/Contract2Object`를 추가합니다.
 
