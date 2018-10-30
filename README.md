@@ -112,6 +112,7 @@ SomeContract.buy({
 
 ## 사용 예시
 - [RankCoin](https://rankcoin.net/) - https://github.com/Hanul/RankCoin/blob/master/js/RankCoinContract.js
+- Ether Fairy - 개발중
 
 ## 라이센스
 [MIT](LICENSE)
