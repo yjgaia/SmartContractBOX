@@ -205,18 +205,15 @@ global.Contract2Object = CLASS((cls) => {
 						
 						let args = [];
 						
-						// 파라미터가 없는 경우
-						if (funcInfo.inputs.length === 0) {
-							// ignore.
-						}
-						
-						// 파라미터가 1개인 경우
-						else if (funcInfo.inputs.length === 1) {
-							args.push(params);
+						// 파라미터가 파라미터가 없거나 1개인 경우
+						if (funcInfo.payable !== true && funcInfo.inputs.length <= 1) {
+							if (funcInfo.inputs.length !== 0) {
+								args.push(params);
+							}
 						}
 						
 						// 파라미터가 여러개인 경우
-						else if (funcInfo.inputs.length > 1) {
+						else {
 							
 							let paramsArray = [];
 							EACH(params, (param) => {
@@ -327,18 +324,15 @@ global.Contract2Object = CLASS((cls) => {
 								
 								let args = [];
 								
-								// 파라미터가 없는 경우
-								if (funcInfo.inputs.length === 0) {
-									// ignore.
-								}
-								
-								// 파라미터가 1개인 경우
-								else if (funcInfo.inputs.length === 1) {
-									args.push(params);
+								// 파라미터가 파라미터가 없거나 1개인 경우
+								if (funcInfo.payable !== true && funcInfo.inputs.length <= 1) {
+									if (funcInfo.inputs.length !== 0) {
+										args.push(params);
+									}
 								}
 								
 								// 파라미터가 여러개인 경우
-								else if (funcInfo.inputs.length > 1) {
+								else {
 									
 									let paramsArray = [];
 									EACH(params, (param) => {

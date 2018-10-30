@@ -198,12 +198,12 @@ global.Contract2Object = CLASS((cls) => {
 							let args = [];
 							
 							// 파라미터가 없거나 1개인 경우
-							if (funcInfo.inputs.length <= 1) {
+							if (funcInfo.payable !== true && funcInfo.inputs.length <= 1) {
 								args.push(params);
 							}
 							
 							// 파라미터가 여러개인 경우
-							else if (funcInfo.inputs.length > 1) {
+							else {
 								
 								let paramsArray = [];
 								EACH(params, (param) => {
@@ -221,7 +221,9 @@ global.Contract2Object = CLASS((cls) => {
 							
 							// 이더 추가
 							if (funcInfo.payable === true) {
-								args.push(web3.toWei(params.ether, 'ether'));
+								args.push({
+									value : web3.toWei(params.ether, 'ether')
+								});
 							}
 							
 							// 콜백 추가
@@ -286,7 +288,7 @@ global.Contract2Object = CLASS((cls) => {
 													}
 													
 													// 아무런 값이 없으면 재시도
-													else if (result === TO_DELETE) {
+													else if (result === TO_DELETE || result.blockHash === TO_DELETE) {
 														retry();
 													}
 													
@@ -340,12 +342,12 @@ global.Contract2Object = CLASS((cls) => {
 							let args = [];
 							
 							// 파라미터가 없거나 1개인 경우
-							if (funcInfo.inputs.length <= 1) {
+							if (funcInfo.payable !== true && funcInfo.inputs.length <= 1) {
 								args.push(params);
 							}
 							
 							// 파라미터가 여러개인 경우
-							else if (funcInfo.inputs.length > 1) {
+							else {
 								
 								let paramsArray = [];
 								EACH(params, (param) => {

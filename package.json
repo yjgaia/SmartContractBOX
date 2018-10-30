@@ -1,6 +1,6 @@
 {
 	"name": "contract2object",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"dependencies": {
 		"uppercase-core": "latest",
 		"web3": "latest"
