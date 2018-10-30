@@ -1,0 +1,9 @@
+{
+	"name": "contract2object",
+	"version": "0.0.2",
+	"dependencies": {
+		"uppercase-core": "latest",
+		"web3": "^1.0.0-beta.36"
+	},
+	"main": "index.js"
+}
