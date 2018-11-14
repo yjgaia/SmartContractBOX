@@ -2,9 +2,12 @@ global.Contract2Object = CLASS((cls) => {
 	
 	let Web3 = require('web3');
 	
+	let isWeb3Enable = false;
+	
 	// Web3 체크
 	if (typeof global.web3 !== 'undefined') {
 		global.web3 = new Web3(global.web3.currentProvider);
+		isWeb3Enable = true;
 	}
 	
 	else {
@@ -21,7 +24,13 @@ global.Contract2Object = CLASS((cls) => {
 		};
 		
 		global.web3 = new Web3(getProvider());
+		isWeb3Enable = true;
 	}
+	
+	// 지갑을 사용할 수 있는지 확인
+	let checkWalletEnable = cls.checkWalletEnable = () => {
+		return isWeb3Enable;
+	};
 	
 	// 결과를 정돈합니다.
 	let cleanResult = (outputs, result) => {

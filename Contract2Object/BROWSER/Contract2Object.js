@@ -8,8 +8,23 @@ global.Contract2Object = CLASS((cls) => {
 		isWeb3Enable = true;
 	}
 	
-	let checkIsWeb3Enable = cls.checkIsWeb3Enable = () => {
+	// 지갑을 사용할 수 있는지 확인
+	let checkWalletEnable = cls.checkWalletEnable = () => {
 		return isWeb3Enable;
+	};
+	
+	// 지갑이 잠금 상태인지 확인
+	let checkWalletLocked = cls.checkWalletLocked = (callback) => {
+		web3.eth.getAccounts((error, accounts) => {
+			callback(accounts.length === 0);
+		});
+	};
+	
+	// 지갑 주소를 가져옵니다.
+	let getWalletAddress = cls.getWalletAddress = (callback) => {
+		web3.eth.getAccounts((error, accounts) => {
+			callback(accounts[0]);
+		});
 	};
 	
 	// 결과를 정돈합니다.
@@ -151,7 +166,7 @@ global.Contract2Object = CLASS((cls) => {
 			let eventMap = {};
 			
 			let contract;
-			if (checkIsWeb3Enable() === true) {
+			if (checkWalletEnable() === true) {
 				
 				contract = web3.eth.contract(abi).at(address);
 				
