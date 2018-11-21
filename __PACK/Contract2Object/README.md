@@ -32,6 +32,9 @@ npm install contract2object
 ```javascript
 require('contract2object');
 
+NODE_CONFIG.infuraServerName = 'kovan';
+NODE_CONFIG.infuraProjectId = '...',
+
 SomeContract = OBJECT({
 	preset : () => {
 		return Contract2Object;
@@ -111,8 +114,8 @@ SomeContract.buy({
 ```
 
 ## 사용 예시
-- [RankCoin](https://rankcoin.net/) - https://github.com/Hanul/RankCoin/blob/master/js/RankCoinContract.js
-- Ether Fairy - 개발중
+- [RankCoin](https://rankcoin.net/)
+- [Ether Fairy](https://etherfairy.com)
 
 ## 라이센스
 [MIT](LICENSE)

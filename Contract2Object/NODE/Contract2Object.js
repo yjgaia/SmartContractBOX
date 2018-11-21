@@ -14,7 +14,7 @@ global.Contract2Object = CLASS((cls) => {
 		
 		let getProvider = () => {
 				
-			let provider = new Web3.providers.WebsocketProvider(CONFIG.isDevMode !== true ? 'wss://mainnet.infura.io/ws' : 'wss://kovan.infura.io/ws');
+			let provider = new Web3.providers.WebsocketProvider('wss://' + (NODE_CONFIG.infuraServerName === undefined ? 'mainnet' : NODE_CONFIG.infuraServerName) + '.infura.io/ws/v3/' + NODE_CONFIG.infuraProjectId);
 			provider.on('end', (e) => {
 				SHOW_ERROR('Contract2Object', 'WebsocketProvider의 접속이 끊어졌습니다. 재접속합니다.');
 				web3.setProvider(getProvider());
