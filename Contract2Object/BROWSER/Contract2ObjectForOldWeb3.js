@@ -1,11 +1,10 @@
-global.Contract2Object = CLASS((cls) => {
+global.Contract2ObjectForOldWeb3 = CLASS((cls) => {
 	
-	let web3;
 	let isWeb3Enable = false;
 	
 	// Web3 체크
-	if (global.Web3 !== undefined) {
-		web3 = new Web3(Web3.givenProvider);
+	if (global.web3 !== undefined) {
+		global.web3 = new Web3(web3.currentProvider);
 		isWeb3Enable = true;
 	}
 	
