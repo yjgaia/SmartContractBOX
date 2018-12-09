@@ -25,6 +25,15 @@ Contract2Object는 [UPPERCASE-CORE-COMMON](https://github.com/Hanul/UPPERCASE/bl
 </html>
 ```
 
+### 구버전 호환하기
+```javascript
+if (global.web3 !== undefined && web3.version !== undefined && web3.version.api !== undefined) {
+	if (web3.version.api.substring(0, 2) === '0.') {
+		global.Contract2Object = Contract2ObjectForOldWeb3;
+	}
+}
+```
+
 ## Node.js 환경
 ```
 npm install contract2object

@@ -8,8 +8,8 @@ global.Contract2ObjectForOldWeb3 = CLASS((cls) => {
 		isWeb3Enable = true;
 	}
 	
-	// 지갑을 사용할 수 있는지 확인
-	let checkWalletEnable = cls.checkWalletEnable = () => {
+	// Web3을 사용할 수 있는지 확인
+	let checkWeb3Enable = cls.checkWeb3Enable = () => {
 		return isWeb3Enable;
 	};
 	
@@ -166,7 +166,8 @@ global.Contract2ObjectForOldWeb3 = CLASS((cls) => {
 			let eventMap = {};
 			
 			let contract;
-			if (checkWalletEnable() === true) {
+			
+			if (checkWeb3Enable() === true) {
 				
 				contract = web3.eth.contract(abi).at(address);
 				

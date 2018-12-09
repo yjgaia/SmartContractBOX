@@ -2,33 +2,17 @@ global.Contract2Object = CLASS((cls) => {
 	
 	let Web3 = require('web3');
 	
+	let web3;
 	let isWeb3Enable = false;
 	
-	// Web3 체크
-	if (global.web3 !== undefined) {
-		global.web3 = new Web3(global.web3.currentProvider);
+	// 기본 공급자 체크
+	if (Web3.givenProvider !== undefined) {
+		web3 = new Web3(Web3.givenProvider);
 		isWeb3Enable = true;
 	}
 	
-	else {
-		
-		let getProvider = () => {
-				
-			let provider = new Web3.providers.WebsocketProvider('wss://' + (NODE_CONFIG.infuraServerName === undefined ? 'mainnet' : NODE_CONFIG.infuraServerName) + '.infura.io/ws/v3/' + NODE_CONFIG.infuraProjectId);
-			provider.on('end', (e) => {
-				SHOW_ERROR('Contract2Object', 'WebsocketProvider의 접속이 끊어졌습니다. 재접속합니다.');
-				web3.setProvider(getProvider());
-			});
-			
-			return provider;
-		};
-		
-		global.web3 = new Web3(getProvider());
-		isWeb3Enable = true;
-	}
-	
-	// 지갑을 사용할 수 있는지 확인
-	let checkWalletEnable = cls.checkWalletEnable = () => {
+	// Web3을 사용할 수 있는지 확인
+	let checkWeb3Enable = cls.checkWeb3Enable = () => {
 		return isWeb3Enable;
 	};
 	
@@ -161,6 +145,23 @@ global.Contract2Object = CLASS((cls) => {
 			//REQUIRED: params.abi
 			//REQUIRED: params.address
 			
+			if (web3 === undefined && NODE_CONFIG.infuraProjectId !== undefined) {
+				
+				let getProvider = () => {
+						
+					let provider = new Web3.providers.WebsocketProvider('wss://' + (NODE_CONFIG.infuraServerName === undefined ? 'mainnet' : NODE_CONFIG.infuraServerName) + '.infura.io/ws/v3/' + NODE_CONFIG.infuraProjectId);
+					provider.on('end', (e) => {
+						SHOW_ERROR('Contract2Object', 'WebsocketProvider의 접속이 끊어졌습니다. 재접속합니다.');
+						web3.setProvider(getProvider());
+					});
+					
+					return provider;
+				};
+				
+				web3 = new Web3(getProvider());
+				isWeb3Enable = true;
+			}
+			
 			let abi = params.abi;
 			let address = params.address;
 			
@@ -170,122 +171,127 @@ global.Contract2Object = CLASS((cls) => {
 			
 			let eventMap = {};
 			
-			let contract = new web3.eth.Contract(abi, address);
+			let contract;
 			
-			// 계약의 이벤트 핸들링
-			contract.events.allEvents((error, info) => {
+			if (checkWeb3Enable() === true) {
 				
-				if (error === TO_DELETE) {
+				contract = new web3.eth.Contract(abi, address);
+				
+				// 계약의 이벤트 핸들링
+				contract.events.allEvents((error, info) => {
 					
-					let eventHandlers = eventMap[info.event];
-		
-					if (eventHandlers !== undefined) {
-						EACH(eventHandlers, (eventHandler) => {
-							eventHandler(info.returnValues);
-						});
-					}
-				}
-			});
+					if (error === TO_DELETE) {
+						
+						let eventHandlers = eventMap[info.event];
 			
-			// 함수 분석 및 생성
-			EACH(abi, (funcInfo) => {
-				if (funcInfo.type === 'function') {
-					
-					self[funcInfo.name] = (params, callbackOrHandlers) => {
-						
-						// 콜백만 입력된 경우
-						if (callbackOrHandlers === undefined) {
-							callbackOrHandlers = params;
-							params = undefined;
+						if (eventHandlers !== undefined) {
+							EACH(eventHandlers, (eventHandler) => {
+								eventHandler(info.returnValues);
+							});
 						}
+					}
+				});
+				
+				// 함수 분석 및 생성
+				EACH(abi, (funcInfo) => {
+					if (funcInfo.type === 'function') {
 						
-						let callback;
-						let transactionAddressCallback;
-						let errorHandler;
-						
-						// 콜백 정리
-						if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-							callback = callbackOrHandlers;
-						} else {
-							callback = callbackOrHandlers.success;
-							transactionAddressCallback = callbackOrHandlers.transactionAddress;
-							errorHandler = callbackOrHandlers.error;
-						}
-						
-						let args = [];
-						
-						// 파라미터가 파라미터가 없거나 1개인 경우
-						if (funcInfo.payable !== true && funcInfo.inputs.length <= 1) {
-							if (funcInfo.inputs.length !== 0) {
-								args.push(params);
+						self[funcInfo.name] = (params, callbackOrHandlers) => {
+							
+							// 콜백만 입력된 경우
+							if (callbackOrHandlers === undefined) {
+								callbackOrHandlers = params;
+								params = undefined;
 							}
-						}
-						
-						// 파라미터가 여러개인 경우
-						else {
 							
-							let paramsArray = [];
-							EACH(params, (param) => {
-								paramsArray.push(param);
-							});
+							let callback;
+							let transactionAddressCallback;
+							let errorHandler;
 							
-							EACH(funcInfo.inputs, (input, i) => {
-								if (input.name !== '') {
-									args.push(params[input.name]);
-								} else {
-									args.push(paramsArray[i]);
-								}
-							});
-						}
-						
-						// 함수 실행
-						contract.methods[funcInfo.name].apply(contract.methods, args).call((error, result) => {
+							// 콜백 정리
+							if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+								callback = callbackOrHandlers;
+							} else {
+								callback = callbackOrHandlers.success;
+								transactionAddressCallback = callbackOrHandlers.transactionAddress;
+								errorHandler = callbackOrHandlers.error;
+							}
 							
-							// 계약 실행 오류 발생
-							if (error !== TO_DELETE) {
-								if (errorHandler !== undefined) {
-									errorHandler(error.toString());
-								} else {
-									SHOW_ERROR(funcInfo.name, error.toString(), params);
+							let args = [];
+							
+							// 파라미터가 파라미터가 없거나 1개인 경우
+							if (funcInfo.payable !== true && funcInfo.inputs.length <= 1) {
+								if (funcInfo.inputs.length !== 0) {
+									args.push(params);
 								}
 							}
 							
-							// 정상 작동
+							// 파라미터가 여러개인 경우
 							else {
 								
-								// constant 함수인 경우
-								if (funcInfo.constant === true) {
-									
-									if (callback !== undefined) {
-										
-										// output이 없는 경우
-										if (funcInfo.outputs.length === 0) {
-											callback();
-										}
-										
-										// output이 1개인 경우
-										else if (funcInfo.outputs.length === 1) {
-											result = cleanResult(funcInfo.outputs, result);
-											callback(result.value, result.str);
-										}
-										
-										// output이 여러개인 경우
-										else if (funcInfo.outputs.length > 1) {
-											result = cleanResult(funcInfo.outputs, result);
-											callback.apply(TO_DELETE, result.array);
-										}
+								let paramsArray = [];
+								EACH(params, (param) => {
+									paramsArray.push(param);
+								});
+								
+								EACH(funcInfo.inputs, (input, i) => {
+									if (input.name !== '') {
+										args.push(params[input.name]);
+									} else {
+										args.push(paramsArray[i]);
+									}
+								});
+							}
+							
+							// 함수 실행
+							contract.methods[funcInfo.name].apply(contract.methods, args).call((error, result) => {
+								
+								// 계약 실행 오류 발생
+								if (error !== TO_DELETE) {
+									if (errorHandler !== undefined) {
+										errorHandler(error.toString());
+									} else {
+										SHOW_ERROR(funcInfo.name, error.toString(), params);
 									}
 								}
 								
-								// 트랜잭션이 필요한 함수인 경우
+								// 정상 작동
 								else {
-									// 실행 불가
+									
+									// constant 함수인 경우
+									if (funcInfo.constant === true) {
+										
+										if (callback !== undefined) {
+											
+											// output이 없는 경우
+											if (funcInfo.outputs.length === 0) {
+												callback();
+											}
+											
+											// output이 1개인 경우
+											else if (funcInfo.outputs.length === 1) {
+												result = cleanResult(funcInfo.outputs, result);
+												callback(result.value, result.str);
+											}
+											
+											// output이 여러개인 경우
+											else if (funcInfo.outputs.length > 1) {
+												result = cleanResult(funcInfo.outputs, result);
+												callback.apply(TO_DELETE, result.array);
+											}
+										}
+									}
+									
+									// 트랜잭션이 필요한 함수인 경우
+									else {
+										// 실행 불가
+									}
 								}
-							}
-						});
-					};
-				}
-			});
+							});
+						};
+					}
+				});
+			}
 			
 			// 이벤트 핸들러를 등록합니다.
 			let on = self.on = (eventName, eventHandler) => {
