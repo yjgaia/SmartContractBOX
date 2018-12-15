@@ -4,7 +4,7 @@ global.Contract2Object = CLASS((cls) => {
 	let isWeb3Enable = false;
 	
 	// 기본 공급자 체크
-	if (Web3.givenProvider !== undefined) {
+	if (Web3.givenProvider !== undefined && Web3.givenProvider !== TO_DELETE) {
 		web3 = new Web3(Web3.givenProvider);
 		isWeb3Enable = true;
 	}
