@@ -28,6 +28,50 @@ global.Contract2Object = CLASS((cls) => {
 		});
 	};
 	
+	// 트랜잭션이 완료될 때 까지 확인합니다.
+	let watchTransaction = cls.watchTransaction = (transactionHash, callbackOrHandlers) => {
+		//REQUIRED: transactionHash
+		//REQUIRED: callbackOrHandlers
+		//OPTIONAL: callbackOrHandlers.error
+		//REQUIRED: callbackOrHandlers.success
+		
+		let callback;
+		let errorHandler;
+		
+		// 콜백 정리
+		if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+			callback = callbackOrHandlers;
+		} else {
+			callback = callbackOrHandlers.success;
+			errorHandler = callbackOrHandlers.error;
+		}
+		
+		let retry = RAR(() => {
+			
+			web3.eth.getTransactionReceipt(transactionHash, (error, result) => {
+				
+				// 트랜잭선 오류 발생
+				if (error !== TO_DELETE) {
+					if (errorHandler !== undefined) {
+						errorHandler(error.toString());
+					} else {
+						SHOW_ERROR(funcInfo.name, error.toString(), params);
+					}
+				}
+				
+				// 아무런 값이 없으면 재시도
+				else if (result === TO_DELETE || result.blockHash === TO_DELETE) {
+					retry();
+				}
+				
+				// 트랜잭션 완료
+				else {
+					callback();
+				}
+			});
+		});
+	};
+	
 	// 결과를 정돈합니다.
 	let cleanResult = (outputs, result) => {
 		
@@ -217,7 +261,7 @@ global.Contract2Object = CLASS((cls) => {
 							}
 							
 							let callback;
-							let transactionAddressCallback;
+							let transactionHashCallback;
 							let errorHandler;
 							
 							// 콜백 정리
@@ -225,7 +269,7 @@ global.Contract2Object = CLASS((cls) => {
 								callback = callbackOrHandlers;
 							} else {
 								callback = callbackOrHandlers.success;
-								transactionAddressCallback = callbackOrHandlers.transactionAddress;
+								transactionHashCallback = callbackOrHandlers.transactionHash;
 								errorHandler = callbackOrHandlers.error;
 							}
 							
@@ -297,35 +341,14 @@ global.Contract2Object = CLASS((cls) => {
 									// 트랜잭션이 필요한 함수인 경우
 									else {
 										
-										if (transactionAddressCallback !== undefined) {
-											transactionAddressCallback(result);
+										if (transactionHashCallback !== undefined) {
+											transactionHashCallback(result);
 										}
 										
 										if (callback !== undefined) {
-											
-											let retry = RAR(() => {
-												
-												web3.eth.getTransactionReceipt(result, (error, result) => {
-													
-													// 트랜잭선 오류 발생
-													if (error !== TO_DELETE) {
-														if (errorHandler !== undefined) {
-															errorHandler(error.toString());
-														} else {
-															SHOW_ERROR(funcInfo.name, error.toString(), params);
-														}
-													}
-													
-													// 아무런 값이 없으면 재시도
-													else if (result === TO_DELETE || result.blockHash === TO_DELETE) {
-														retry();
-													}
-													
-													// 트랜잭션 완료
-													else {
-														callback();
-													}
-												});
+											watchTransaction(result, {
+												error : errorHandler,
+												success : callback
 											});
 										}
 									}
@@ -354,7 +377,7 @@ global.Contract2Object = CLASS((cls) => {
 							}
 							
 							let callback;
-							let transactionAddressCallback;
+							let transactionHashCallback;
 							let errorHandler;
 							
 							// 콜백 정리
@@ -362,7 +385,7 @@ global.Contract2Object = CLASS((cls) => {
 								callback = callbackOrHandlers;
 							} else {
 								callback = callbackOrHandlers.success;
-								transactionAddressCallback = callbackOrHandlers.transactionAddress;
+								transactionHashCallback = callbackOrHandlers.transactionHash;
 								errorHandler = callbackOrHandlers.error;
 							}
 							
