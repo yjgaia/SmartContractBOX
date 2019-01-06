@@ -13,17 +13,75 @@ global.Contract2ObjectForOldWeb3 = CLASS((cls) => {
 		return isWeb3Enable;
 	};
 	
-	// 지갑이 잠금 상태인지 확인
-	let checkWalletLocked = cls.checkWalletLocked = (callback) => {
+	// 지갑 주소를 가져옵니다.
+	let getWalletAddress = cls.getWalletAddress = (callback) => {
+		//REQUIRED: callback
+		
 		web3.eth.getAccounts((error, accounts) => {
-			callback(accounts.length === 0);
+			callback(accounts[0]);
 		});
 	};
 	
-	// 지갑 주소를 가져옵니다.
-	let getWalletAddress = cls.getWalletAddress = (callback) => {
-		web3.eth.getAccounts((error, accounts) => {
-			callback(accounts[0]);
+	// 지갑이 잠금 상태인지 확인
+	let checkWalletLocked = cls.checkWalletLocked = (callback) => {
+		//REQUIRED: callback
+		
+		getWalletAddress((address) => {
+			callback(address === undefined);
+		});
+	};
+	
+	// 데이터를 서명합니다.
+	let sign = cls.sign = (data, callbackOrHandlers) => {
+		//REQUIRED: data
+		//REQUIRED: callbackOrHandlers
+		//OPTIONAL: callbackOrHandlers.error
+		//REQUIRED: callbackOrHandlers.success
+		
+		let callback;
+		let errorHandler;
+		
+		// 콜백 정리
+		if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+			callback = callbackOrHandlers;
+		} else {
+			callback = callbackOrHandlers.success;
+			errorHandler = callbackOrHandlers.error;
+		}
+		
+		getWalletAddress((address) => {
+			
+			let str;
+			
+			if (CHECK_IS_DATA(data) === true) {
+				
+				let sortedData = {};
+				Object.keys(data).sort().forEach((key) => {
+					sortedData[key] = data[key];
+				});
+				
+				str = STRINGIFY(sortedData);
+			}
+			
+			else {
+				str = String(data);
+			}
+			
+			web3.personal.sign(str, address, (error, hash) => {
+				
+				// 오류 발생
+				if (error !== TO_DELETE) {
+					if (errorHandler !== undefined) {
+						errorHandler(error.toString());
+					} else {
+						SHOW_ERROR('Contract2Object.sign', error.toString(), data);
+					}
+				}
+				
+				else {
+					callback(hash);
+				}
+			});
 		});
 	};
 	
