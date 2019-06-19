@@ -251,6 +251,25 @@ global.Contract2ObjectForOldWeb3 = CLASS((cls) => {
 		}
 	};
 	
+	let getEthereumNetworkName = cls.getEthereumNetworkName = (callback) => {
+		//REQUIRED: callback
+		
+		web3.version.getNetwork((error, netId) => {
+			
+			if (netId === '1') {
+				callback('Mainnet');
+			} else if (netId === '3') {
+				callback('Ropsten');
+			} else if (netId === '4') {
+				callback('Rinkeby');
+			} else if (netId === '42') {
+				callback('Kovan');
+			} else {
+				callback('Unknown');
+			}
+		});
+	};
+	
 	return {
 		
 		init : (inner, self, params) => {
@@ -295,7 +314,7 @@ global.Contract2ObjectForOldWeb3 = CLASS((cls) => {
 						self[funcInfo.name] = (params, callbackOrHandlers) => {
 							
 							// 콜백만 입력된 경우
-							if (callbackOrHandlers === undefined) {
+							if (callbackOrHandlers === undefined && typeof params === 'function') {
 								callbackOrHandlers = params;
 								params = undefined;
 							}
