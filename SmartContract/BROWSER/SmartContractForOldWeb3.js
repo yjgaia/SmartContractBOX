@@ -1,4 +1,4 @@
-global.Contract2ObjectForOldWeb3 = CLASS((cls) => {
+global.SmartContractForOldWeb3 = CLASS((cls) => {
 	
 	let isWeb3Enable = false;
 	
@@ -74,7 +74,7 @@ global.Contract2ObjectForOldWeb3 = CLASS((cls) => {
 					if (errorHandler !== undefined) {
 						errorHandler(error.toString());
 					} else {
-						SHOW_ERROR('Contract2Object.sign', error.toString(), data);
+						SHOW_ERROR('SmartContract.sign', error.toString(), data);
 					}
 				}
 				
@@ -428,7 +428,7 @@ global.Contract2ObjectForOldWeb3 = CLASS((cls) => {
 			// UPPERCASE-ROOM 기능을 사용하여 클라이언트에서 web3를 지원하지 않더라도 서버를 통해 정보를 받아오도록 합니다.
 			else if (global.UPPERCASE !== undefined && UPPERCASE.ROOM !== undefined) {
 				
-				let room = UPPERCASE.ROOM('__Contract2Object/' + address);
+				let room = UPPERCASE.ROOM('__SmartContract/' + address);
 				
 				// 함수 분석 및 생성
 				EACH(abi, (funcInfo) => {

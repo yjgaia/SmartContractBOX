@@ -1,13 +1,13 @@
-# Contract2Object
+# SmartContract
 스마트 계약의 ABI와 [UPPERCASE의 OOP 기능](https://github.com/Hanul/UPPERCASE/blob/master/DOC/GUIDE/OOP.md)을 이용하여 스마트 계약을 JavaScript 객체로 만들어 줍니다.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## [UPPERCASE](http://uppercase.io) 환경
-프로젝트의 `DEPENDENCY` 파일에 `Hanul/Contract2Object`를 추가합니다.
+프로젝트의 `DEPENDENCY` 파일에 `Hanul/SmartContract`를 추가합니다.
 
 ## 웹 브라우저 환경
-Contract2Object는 [UPPERCASE-CORE-COMMON](https://github.com/Hanul/UPPERCASE/blob/master/DOC/GUIDE/UPPERCASE-CORE-COMMON.md)에 의존적입니다. 따라서 [UPPERCASE-CORE/COMMON.js 코드](https://github.com/Hanul/UPPERCASE/blob/master/UPPERCASE-CORE/COMMON.js)가 필요합니다.
+SmartContract는 [UPPERCASE-CORE-COMMON](https://github.com/Hanul/UPPERCASE/blob/master/DOC/GUIDE/UPPERCASE-CORE-COMMON.md)에 의존적입니다. 따라서 [UPPERCASE-CORE/COMMON.js 코드](https://github.com/Hanul/UPPERCASE/blob/master/UPPERCASE-CORE/COMMON.js)가 필요합니다.
 
 ```html
 <!DOCTYPE html>
@@ -17,7 +17,7 @@ Contract2Object는 [UPPERCASE-CORE-COMMON](https://github.com/Hanul/UPPERCASE/bl
 	</head>
 	<body>
 	    <script src="UPPERCASE-CORE/COMMON.js"></script>
-	    <script src="Contract2Object.js"></script>
+	    <script src="SmartContract.js"></script>
 	    <!-- main.js에 코드 입력 -->
 	    <script src="main.js"></script>
 	    <script>INIT_OBJECTS();</script>
@@ -29,24 +29,24 @@ Contract2Object는 [UPPERCASE-CORE-COMMON](https://github.com/Hanul/UPPERCASE/bl
 ```javascript
 if (global.web3 !== undefined && web3.version !== undefined && web3.version.api !== undefined) {
 	if (web3.version.api.substring(0, 2) === '0.') {
-		global.Contract2Object = Contract2ObjectForOldWeb3;
+		global.SmartContract = SmartContractForOldWeb3;
 	}
 }
 ```
 
 ## Node.js 환경
 ```
-npm install contract2object
+npm install smartcontract
 ```
 ```javascript
-require('contract2object');
+require('smartcontract');
 
 NODE_CONFIG.infuraServerName = 'kovan';
 NODE_CONFIG.infuraProjectId = '...',
 
 SomeContract = OBJECT({
 	preset : () => {
-		return Contract2Object;
+		return SmartContract;
 	},
 	...
 ```
@@ -55,7 +55,7 @@ SomeContract = OBJECT({
 ```javascript
 SomeContract = OBJECT({
 	preset : () => {
-		return Contract2Object;
+		return SmartContract;
 	},
 	params : () => {
 		return {

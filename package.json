@@ -1,6 +1,6 @@
 {
-	"name": "contract2object",
-	"version": "0.0.4",
+	"name": "smartcontract",
+	"version": "0.0.1",
 	"dependencies": {
 		"uppercase-core": "latest",
 		"web3": "latest"
