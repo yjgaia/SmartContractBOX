@@ -32,6 +32,69 @@ global.SmartContract = CLASS((cls) => {
 		});
 	};
 	
+	// 지갑을 사용 가능하게 합니다.
+	let enableWallet = cls.enableWallet = (callbackOrHandlers) => {
+		//REQUIRED: callbackOrHandlers
+		//OPTIONAL: callbackOrHandlers.error
+		//REQUIRED: callbackOrHandlers.success
+		
+		let callback;
+		let errorHandler;
+		
+		// 콜백 정리
+		if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+			callback = callbackOrHandlers;
+		} else {
+			callback = callbackOrHandlers.success;
+			errorHandler = callbackOrHandlers.error;
+		}
+		
+		if (global.ethereum !== undefined) {
+			
+			ethereum.enable().then(() => {
+				if (callback !== undefined) {
+					callback();
+				}
+			}).catch((error) => {
+				if (errorHandler !== undefined) {
+					errorHandler(error);
+				}
+			});
+		}
+		
+		else if (callback !== undefined) {
+			callback();
+		}
+	};
+	
+	// 지갑 주소가 변경된 경우
+	let onWalletAddressChanged = cls.onWalletAddressChanged = (handler) => {
+		//REQUIRED: handler
+		
+		if (global.ethereum !== undefined) {
+			
+			ethereum.on('walletAddressChanged', () => {
+				handler();
+			});
+			
+			ethereum.on('accountsChanged', () => {
+				handler();
+			});
+		}
+	};
+	
+	// 네트워크가 변경된 경우
+	let onNetworkChanged = cls.onNetworkChanged = (handler) => {
+		//REQUIRED: handler
+		
+		if (global.ethereum !== undefined) {
+			
+			ethereum.on('networkChanged', () => {
+				handler();
+			});
+		}
+	};
+	
 	// 데이터를 서명합니다.
 	let sign = cls.sign = (data, callbackOrHandlers) => {
 		//REQUIRED: data
@@ -376,61 +439,92 @@ global.SmartContract = CLASS((cls) => {
 								});
 							}
 							
-							// 함수 실행
-							contract.methods[funcInfo.name].apply(contract.methods, args).call((error, result) => {
+							NEXT([
+							(next) => {
 								
-								// 계약 실행 오류 발생
-								if (error !== TO_DELETE) {
-									if (errorHandler !== undefined) {
-										errorHandler(error.toString());
-									} else {
-										SHOW_ERROR(funcInfo.name, error.toString(), params);
-									}
-								}
-								
-								// 정상 작동
-								else {
+								// 트랜잭션이 필요한 함수인 경우, 지갑이 잠겨있다면 지갑을 사용 가능하게 합니다.
+								if (funcInfo.constant !== true) {
 									
-									// constant 함수인 경우
-									if (funcInfo.constant === true) {
+									checkWalletLocked((isLocked) => {
 										
-										if (callback !== undefined) {
-											
-											// output이 없는 경우
-											if (funcInfo.outputs.length === 0) {
-												callback();
-											}
-											
-											// output이 1개인 경우
-											else if (funcInfo.outputs.length === 1) {
-												result = cleanResult(funcInfo.outputs, result);
-												callback(result.value, result.str);
-											}
-											
-											// output이 여러개인 경우
-											else if (funcInfo.outputs.length > 1) {
-												result = cleanResult(funcInfo.outputs, result);
-												callback.apply(TO_DELETE, result.array);
-											}
-										}
-									}
-									
-									// 트랜잭션이 필요한 함수인 경우
-									else {
-										
-										if (transactionHashCallback !== undefined) {
-											transactionHashCallback(result);
-										}
-										
-										if (callback !== undefined) {
-											watchTransaction(result, {
+										if (isLocked === true) {
+											enableWallet({
 												error : errorHandler,
-												success : callback
+												success : next
 											});
 										}
-									}
+										
+										else {
+											next();
+										}
+									});
 								}
-							});
+								
+								else {
+									next();
+								}
+							},
+							
+							() => {
+								return () => {
+									
+									// 함수 실행
+									contract.methods[funcInfo.name].apply(contract.methods, args).call((error, result) => {
+										
+										// 계약 실행 오류 발생
+										if (error !== TO_DELETE) {
+											if (errorHandler !== undefined) {
+												errorHandler(error.toString());
+											} else {
+												SHOW_ERROR(funcInfo.name, error.toString(), params);
+											}
+										}
+										
+										// 정상 작동
+										else {
+											
+											// constant 함수인 경우
+											if (funcInfo.constant === true) {
+												
+												if (callback !== undefined) {
+													
+													// output이 없는 경우
+													if (funcInfo.outputs.length === 0) {
+														callback();
+													}
+													
+													// output이 1개인 경우
+													else if (funcInfo.outputs.length === 1) {
+														result = cleanResult(funcInfo.outputs, result);
+														callback(result.value, result.str);
+													}
+													
+													// output이 여러개인 경우
+													else if (funcInfo.outputs.length > 1) {
+														result = cleanResult(funcInfo.outputs, result);
+														callback.apply(TO_DELETE, result.array);
+													}
+												}
+											}
+											
+											// 트랜잭션이 필요한 함수인 경우
+											else {
+												
+												if (transactionHashCallback !== undefined) {
+													transactionHashCallback(result);
+												}
+												
+												if (callback !== undefined) {
+													watchTransaction(result, {
+														error : errorHandler,
+														success : callback
+													});
+												}
+											}
+										}
+									});
+								};
+							}]);
 						};
 					}
 				});
