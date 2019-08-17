@@ -2,10 +2,14 @@ global.SmartContractForOldWeb3 = CLASS((cls) => {
 	
 	let isWeb3Enable = false;
 	
+	let setWeb3 = cls.setWeb3 = (_web3) => {
+		global.web3 = _web3;
+		isWeb3Enable = true;
+	};
+	
 	// Web3 체크
 	if (global.web3 !== undefined) {
-		global.web3 = new Web3(web3.currentProvider);
-		isWeb3Enable = true;
+		setWeb3(new Web3(web3.currentProvider));
 	}
 	
 	// Web3을 사용할 수 있는지 확인

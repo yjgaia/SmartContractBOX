@@ -3,10 +3,14 @@ global.SmartContract = CLASS((cls) => {
 	let web3;
 	let isWeb3Enable = false;
 	
+	let setWeb3 = cls.setWeb3 = (_web3) => {
+		web3 = _web3;
+		isWeb3Enable = true;
+	};
+	
 	// 기본 공급자 체크
 	if (Web3.givenProvider !== undefined && Web3.givenProvider !== TO_DELETE) {
-		web3 = new Web3(Web3.givenProvider);
-		isWeb3Enable = true;
+		setWeb3(new Web3(Web3.givenProvider));
 	}
 	
 	// Web3을 사용할 수 있는지 확인
