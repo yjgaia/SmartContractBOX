@@ -223,10 +223,21 @@ global.SmartContractForOldWeb3 = CLASS((cls) => {
 				let array = [];
 				let strArray = [];
 				EACH(result, (value, i) => {
+					
+					// 숫자인 경우
 					if (value.toNumber !== undefined) {
 						array.push(value.toNumber());
 						strArray.push(value.toString(10));
-					} else {
+					}
+					
+					// 주소인 경우
+					else if (type.substring(0, type.length - 2) === 'address') {
+						array.push(web3.toChecksumAddress(value));
+						strArray.push(String(value));
+					}
+					
+					// 기타
+					else {
 						array.push(value);
 						strArray.push(String(value));
 					}
@@ -235,6 +246,14 @@ global.SmartContractForOldWeb3 = CLASS((cls) => {
 				return {
 					value : array,
 					str : strArray
+				};
+			}
+			
+			// 주소인 경우
+			else if (type === 'address') {
+				return {
+					value : web3.toChecksumAddress(result),
+					str : String(result)
 				};
 			}
 			
@@ -266,14 +285,29 @@ global.SmartContractForOldWeb3 = CLASS((cls) => {
 					
 					let array = [];
 					EACH(result[i], (value, j) => {
+						
+						// 숫자인 경우
 						if (value.toNumber !== undefined) {
 							array.push(value.toNumber());
-						} else {
+						}
+						
+						// 주소인 경우
+						else if (type.substring(0, type.length - 2) === 'address') {
+							array.push(web3.toChecksumAddress(value));
+						}
+						
+						// 기타
+						else {
 							array.push(value);
 						}
 					});
 					
 					resultArray.push(array);
+				}
+				
+				// 주소인 경우
+				else if (type === 'address') {
+					resultArray.push(web3.toChecksumAddress(result[i]));
 				}
 				
 				// 기타
@@ -296,14 +330,24 @@ global.SmartContractForOldWeb3 = CLASS((cls) => {
 					
 					let strArray = [];
 					EACH(result[i], (value, j) => {
+						
+						// 숫자인 경우
 						if (value.toNumber !== undefined) {
 							strArray.push(value.toString(10));
-						} else {
+						}
+						
+						// 기타
+						else {
 							strArray.push(String(value));
 						}
 					});
 					
 					resultArray.push(strArray);
+				}
+				
+				// 주소인 경우
+				else if (type === 'address') {
+					resultArray.push(web3.toChecksumAddress(result[i]));
 				}
 				
 				// 기타

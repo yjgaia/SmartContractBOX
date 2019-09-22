@@ -216,10 +216,21 @@ global.SmartContract = CLASS((cls) => {
 				let array = [];
 				let strArray = [];
 				EACH(result, (value, i) => {
+					
+					// 숫자인 경우
 					if (type.indexOf('int') !== -1) {
 						array.push(INTEGER(value));
 						strArray.push(value);
-					} else {
+					}
+					
+					// 주소인 경우
+					else if (type.substring(0, type.length - 2) === 'address') {
+						array.push(web3.utils.toChecksumAddress(value));
+						strArray.push(value);
+					}
+					
+					// 기타
+					else {
 						array.push(value);
 						strArray.push(value);
 					}
@@ -235,6 +246,14 @@ global.SmartContract = CLASS((cls) => {
 			else if (type.indexOf('int') !== -1) {
 				return {
 					value : INTEGER(result),
+					str : result
+				};
+			}
+			
+			// 주소인 경우
+			else if (type === 'address') {
+				return {
+					value : web3.utils.toChecksumAddress(result),
 					str : result
 				};
 			}
@@ -262,9 +281,19 @@ global.SmartContract = CLASS((cls) => {
 					
 					let array = [];
 					EACH(result[i], (value, j) => {
+						
+						// 숫자인 경우
 						if (type.indexOf('int') !== -1) {
 							array.push(INTEGER(value));
-						} else {
+						}
+						
+						// 주소인 경우
+						else if (type.substring(0, type.length - 2) === 'address') {
+							array.push(web3.utils.toChecksumAddress(value));
+						}
+						
+						// 기타
+						else {
 							array.push(value);
 						}
 					});
@@ -275,6 +304,11 @@ global.SmartContract = CLASS((cls) => {
 				// 숫자인 경우
 				else if (type.indexOf('int') !== -1) {
 					resultArray.push(INTEGER(result[i]));
+				}
+				
+				// 주소인 경우
+				else if (type === 'address') {
+					resultArray.push(web3.utils.toChecksumAddress(result[i]));
 				}
 				
 				// 기타
@@ -292,9 +326,14 @@ global.SmartContract = CLASS((cls) => {
 					
 					let strArray = [];
 					EACH(result[i], (value, j) => {
+						
+						// 숫자인 경우
 						if (type.indexOf('int') !== -1) {
 							strArray.push(value);
-						} else {
+						}
+						
+						// 기타
+						else {
 							strArray.push(value);
 						}
 					});
@@ -305,6 +344,11 @@ global.SmartContract = CLASS((cls) => {
 				// 숫자인 경우
 				else if (type.indexOf('int') !== -1) {
 					resultArray.push(result[i]);
+				}
+				
+				// 주소인 경우
+				else if (type === 'address') {
+					resultArray.push(web3.utils.toChecksumAddress(result[i]));
 				}
 				
 				// 기타
