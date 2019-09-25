@@ -392,7 +392,7 @@ global.SmartContract = CLASS((cls) => {
 			if (web3 === undefined && BROWSER_CONFIG.infuraProjectId !== undefined) {
 				
 				let getProvider = () => {
-						
+					
 					let provider = new Web3.providers.WebsocketProvider('wss://' + (BROWSER_CONFIG.infuraServerName === undefined ? 'mainnet' : BROWSER_CONFIG.infuraServerName) + '.infura.io/ws/v3/' + BROWSER_CONFIG.infuraProjectId);
 					provider.on('end', (e) => {
 						SHOW_ERROR('SmartContract', 'WebsocketProvider의 접속이 끊어졌습니다. 재접속합니다.');
